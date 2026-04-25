@@ -1,5 +1,9 @@
-venv/
+cat > .gitignore << 'EOF'
 __pycache__/
 *.pyc
-monitoring.db
+*.db
+*.sqlite
 .env
+venv/
+.vscode/
+EOF
