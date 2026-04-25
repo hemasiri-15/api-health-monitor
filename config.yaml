@@ -1,0 +1,150 @@
+# =============================================================================
+# API Health Check Monitor - Configuration File
+# =============================================================================
+# This file defines which APIs to monitor, how often to check them,
+# what to validate in the response, and how to send alerts.
+# =============================================================================
+
+# Global monitoring settings
+settings:
+  check_interval_seconds: 30        # How frequently to poll all endpoints
+  request_timeout_seconds: 10       # Max wait time per request before timeout
+  max_retries: 2                     # Number of retries on failure before alerting
+  log_level: INFO                    # Logging level: DEBUG | INFO | WARNING | ERROR
+
+# Dashboard settings
+dashboard:
+  host: "0.0.0.0"
+  port: 5000
+  title: "API Health Check Monitor"
+
+# Database settings
+database:
+  path: "monitoring.db"              # SQLite database file location
+
+# Alert settings
+alerts:
+  console_enabled: true              # Always log alerts to console
+  email_enabled: false               # Set to true and fill smtp config to enable email
+  slack_enabled: false               # Set to true and fill webhook_url to enable Slack
+
+  email:
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    sender_email: "your_email@gmail.com"
+    sender_password: "your_app_password"   # Use App Password for Gmail
+    recipient_email: "alert_recipient@gmail.com"
+
+  slack:
+    webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+
+# =============================================================================
+# API Endpoints to Monitor
+# Each entry defines: url, name, method, expected_status,
+#                     validation rules, and optional headers/body
+# =============================================================================
+
+endpoints:
+
+  # ---------------------------------------------------------------------------
+  # 1. JSONPlaceholder - Free fake REST API for testing
+  # ---------------------------------------------------------------------------
+  - name: "JSONPlaceholder - Posts"
+    url: "https://jsonplaceholder.typicode.com/posts/1"
+    method: GET
+    expected_status: 200
+    tags:
+      - public
+      - rest
+    validation:
+      # Keys that MUST exist in the JSON response
+      required_keys:
+        - "userId"
+        - "id"
+        - "title"
+        - "body"
+      # Exact values to assert (key: expected_value)
+      expected_values:
+        id: 1
+        userId: 1
+    thresholds:
+      max_response_time_ms: 2000     # Alert if response takes longer than this
+
+  # ---------------------------------------------------------------------------
+  # 2. Open Meteo - Free weather forecast API (no key required)
+  # ---------------------------------------------------------------------------
+  - name: "Open-Meteo - Weather Forecast"
+    url: "https://api.open-meteo.com/v1/forecast?latitude=17.38&longitude=78.49&current_weather=true"
+    method: GET
+    expected_status: 200
+    tags:
+      - public
+      - weather
+    validation:
+      required_keys:
+        - "latitude"
+        - "longitude"
+        - "current_weather"
+      expected_values: {}            # No specific value assertions needed here
+    thresholds:
+      max_response_time_ms: 3000
+
+  # ---------------------------------------------------------------------------
+  # 3. RestCountries - Country information API (no key required)
+  # ---------------------------------------------------------------------------
+  - name: "RestCountries - India Info"
+    url: "https://restcountries.com/v3.1/alpha/IN"
+    method: GET
+    expected_status: 200
+    tags:
+      - public
+      - geo
+    validation:
+      # Response is a list; validator checks first element's keys
+      required_keys:
+        - "name"
+        - "capital"
+        - "region"
+        - "population"
+      expected_values: {}
+    thresholds:
+      max_response_time_ms: 3000
+
+  # ---------------------------------------------------------------------------
+  # 4. CoinGecko - Crypto price API (no key required for basic usage)
+  # ---------------------------------------------------------------------------
+  - name: "CoinGecko - Bitcoin Price"
+    url: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+    method: GET
+    expected_status: 200
+    tags:
+      - public
+      - finance
+    validation:
+      required_keys:
+        - "bitcoin"
+      expected_values: {}
+    thresholds:
+      max_response_time_ms: 4000
+
+  # ---------------------------------------------------------------------------
+  # 5. NASA APOD - Astronomy Picture of the Day (free, no key needed for demo)
+  # ---------------------------------------------------------------------------
+  - name: "IP-API - Geolocation"
+    url: "http://ip-api.com/json/8.8.8.8"
+    method: GET
+    expected_status: 200
+    tags:
+      - public
+      - network
+    validation:
+      required_keys:
+        - "status"
+        - "country"
+        - "city"
+        - "query"
+      expected_values:
+        status: "success"
+        query: "8.8.8.8"
+    thresholds:
+      max_response_time_ms: 2000

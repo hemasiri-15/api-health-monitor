@@ -1,0 +1,9 @@
+# =============================================================================
+# requirements.txt - Python dependencies for API Health Check Monitor
+# =============================================================================
+# Install with:  pip install -r requirements.txt
+# =============================================================================
+
+flask>=3.0.0          # Web framework for the dashboard
+requests>=2.31.0      # HTTP client for checking endpoints
+pyyaml>=6.0.1         # YAML configuration file parser
