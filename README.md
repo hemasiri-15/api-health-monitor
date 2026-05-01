@@ -174,23 +174,23 @@ The dashboard **auto-refreshes every 15 seconds** — no need to manually reload
 config.yaml
     │
     ▼
-main.py ──────────────────────────────────────────────────────────────────────
-    │                                                                          │
+main.py ──────────────────────────────────────────────────────────────────
+    │                                                                     │
     ├──► Thread: monitor.py (background daemon)               Flask: dashboard.py
-    │        │                                                      │
-    │        ├─► check_endpoint()  ─► requests.get(url)            │  GET /
-    │        │       │                                              │  GET /api/status
-    │        │       ├─► validator.py ─► ValidationResult          │  GET /api/stats
-    │        │       │                                              │  GET /api/history
-    │        │       └─► result dict                               │
-    │        │                                                      │
-    │        ├─► alerts.py ◄─── if status != 'UP'                 │
-    │        │       │                                              │
-    │        │       ├── Console log (always)                      │
-    │        │       ├── Email (if enabled)                        │
-    │        │       └── Slack (if enabled)                        │
-    │        │                                                      │
-    │        └─► database.py ──► monitoring.db ◄──────────────────┘
+    │        │                                                            │
+    │        ├─► check_endpoint()  ─► requests.get(url)                   │  GET /
+    │        │       │                                                    │  GET /api/status
+    │        │       ├─► validator.py ─► ValidationResult                 │  GET /api/stats
+    │        │       │                                                    │  GET /api/history
+    │        │       └─► result dict                                      │
+    │        │                                                            │
+    │        ├─► alerts.py ◄─── if status != 'UP'                         │
+    │        │       │                                                    │
+    │        │       ├── Console log (always)                             │
+    │        │       ├── Email (if enabled)                               │
+    │        │       └── Slack (if enabled)                               │
+    │        │                                                            │
+    │        └─► database.py ──► monitoring.db ◄──────────────────────────┘
     │                (write)                       (read)
     │
     └──► Ctrl+C → clean shutdown
