@@ -2,21 +2,6 @@
 =============================================================================
 main.py - Application Entry Point
 =============================================================================
-Usage:
-    python main.py                      # Uses default config.yaml
-    python main.py --config myconf.yaml # Use custom config path
-
-What this file does:
-    1. Sets up structured logging.
-    2. Loads config.yaml.
-    3. Initialises the SQLite database.
-    4. Starts the monitoring loop in a background daemon thread.
-    5. Starts the Flask dashboard in the main thread.
-
-The two components run concurrently:
-    - Background thread: polls endpoints every N seconds, writes to DB.
-    - Main thread (Flask): serves the web dashboard, reads from DB.
-=============================================================================
 """
 
 import argparse
@@ -24,25 +9,13 @@ import logging
 import sys
 import threading
 
+import database
 from monitor import load_config, start_monitoring_loop
 from database import initialize_database
 from dashboard import run_dashboard
 
 
-# ---------------------------------------------------------------------------
-# Logging setup
-# ---------------------------------------------------------------------------
-
 def configure_logging(level_name: str = "INFO") -> None:
-    """
-    Configure root logger with a readable format.
-
-    We send everything to stdout so it's easy to read in the terminal
-    while the dashboard is running.
-
-    Args:
-        level_name: Logging level string ('DEBUG', 'INFO', 'WARNING', 'ERROR').
-    """
     level = getattr(logging, level_name.upper(), logging.INFO)
     logging.basicConfig(
         level=level,
@@ -51,10 +24,6 @@ def configure_logging(level_name: str = "INFO") -> None:
         stream=sys.stdout,
     )
 
-
-# ---------------------------------------------------------------------------
-# Argument parser
-# ---------------------------------------------------------------------------
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -67,30 +36,18 @@ def parse_args() -> argparse.Namespace:
         default="config.yaml",
         help="Path to the YAML configuration file (default: config.yaml)"
     )
+    parser.add_argument(
+        "--report",
+        action="store_true",
+        help="Print historical summary report and exit"
+    )
     return parser.parse_args()
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
 def main() -> None:
-    """
-    Application entry point.
-
-    Orchestration order:
-        1. Parse CLI args → find config file.
-        2. Configure logging.
-        3. Load config.yaml.
-        4. Initialise SQLite DB (creates table if not present).
-        5. Launch monitor loop in a daemon thread.
-        6. Launch Flask dashboard on the main thread (blocking).
-    """
     args = parse_args()
 
     # Step 1 — Logging
-    # We read log_level from config later, but we need basic logging NOW
-    # to log config-loading errors. Default to INFO initially.
     configure_logging("INFO")
     logger = logging.getLogger("main")
 
@@ -102,7 +59,7 @@ def main() -> None:
     try:
         config = load_config(args.config)
     except FileNotFoundError:
-        logger.error(
+        logging.error(
             "Config file '%s' not found. "
             "Make sure config.yaml is in the same directory as main.py.",
             args.config
@@ -117,9 +74,23 @@ def main() -> None:
     db_path = config.get("database", {}).get("path", "monitoring.db")
     initialize_database(db_path)
 
-    # Step 4 — Start monitoring loop in a background daemon thread
-    # daemon=True means this thread automatically dies when the main
-    # thread (Flask) exits — no cleanup needed.
+    # Step 4 — Handle --report flag
+    if args.report:
+        print("\n📊 API Health Monitor — Historical Report")
+        print("=" * 55)
+        stats = database.get_uptime_stats(db_path)
+        if not stats:
+            print("No data yet. Run 'python main.py' first to collect data.")
+        else:
+            for s in stats:
+                bar = "█" * int(s['uptime_pct'] / 5) + "░" * (20 - int(s['uptime_pct'] / 5))
+                print(f"\n  {s['endpoint_name']}")
+                print(f"  [{bar}] {s['uptime_pct']}% uptime")
+                print(f"  Avg response: {s['avg_response_ms']} ms | Total checks: {s['total_checks']}")
+        print()
+        sys.exit(0)
+
+    # Step 5 — Start monitoring loop in a background daemon thread
     monitor_thread = threading.Thread(
         target=start_monitoring_loop,
         args=(config,),
@@ -129,9 +100,9 @@ def main() -> None:
     monitor_thread.start()
     logger.info("Monitoring thread started (daemon=True).")
 
-    # Step 5 — Start Flask dashboard (BLOCKING — runs until Ctrl+C)
+    # Step 6 — Start Flask dashboard (BLOCKING — runs until Ctrl+C)
     dash_cfg = config.get("dashboard", {})
-    port     = dash_cfg.get("port", 5000)
+    port = dash_cfg.get("port", 5000)
     logger.info("Dashboard → http://localhost:%d  (press Ctrl+C to stop)", port)
 
     try:
