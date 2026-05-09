@@ -77,17 +77,17 @@ main.py  (entry point — orchestrates everything)
           │             │                         │  (daemon thread) │
           │  Flask runs │                         └────────┬─────────┘
           │  on main    │                                  │ every 30s
-          │  thread     │        ┌─────────────────────────┼──────────────────┐
-          └──────┬──────┘        │                         │                  │
-                 │               ▼                         ▼                  ▼
+          │  thread     │        ┌─────────────────────────┼────────────────┐
+          └──────┬──────┘        │                         │                │
+                 │               ▼                         ▼                ▼
                  │       ┌──────────────┐        ┌──────────────┐   ┌──────────────┐
                  │       │ validator.py │        │  alerts.py   │   │ database.py  │
                  │       │ checks JSON  │        │ fires if DOWN│   │ INSERT every │
                  │       │ keys+values  │        │ console/email│   │ result to DB │
                  │       └──────────────┘        │ /slack       │   └──────┬───────┘
                  │                               └──────────────┘          │
-                 │                                                          │ SELECT
-                 └──────────────────────────────────────────────────────────┘
+                 │                                                         │ SELECT
+                 └─────────────────────────────────────────────────────────┘
                               dashboard reads DB every 15s via AJAX
 ```
 
