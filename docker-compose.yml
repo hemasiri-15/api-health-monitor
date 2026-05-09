@@ -1,0 +1,23 @@
+# =============================================================================
+# docker-compose.yml — API Health Check Monitor
+# =============================================================================
+# Usage:
+#   Start:   docker-compose up
+#   Stop:    docker-compose down
+#   Rebuild: docker-compose up --build
+# =============================================================================
+
+version: '3.8'
+
+services:
+  api-monitor:
+    build: .
+    container_name: api-health-monitor
+    ports:
+      - "5000:5000"           # Dashboard accessible at http://localhost:5000
+    volumes:
+      - ./config.yaml:/app/config.yaml          # Mount config so you can edit without rebuilding
+      - ./monitoring.db:/app/monitoring.db       # Persist database outside container
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped   # Auto-restart if it crashes

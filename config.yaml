@@ -25,15 +25,15 @@ database:
 # Alert settings
 alerts:
   console_enabled: true              # Always log alerts to console
-  email_enabled: false               # Set to true and fill smtp config to enable email
+  email_enabled: true               # Set to true and fill smtp config to enable email
   slack_enabled: false               # Set to true and fill webhook_url to enable Slack
 
   email:
     smtp_server: "smtp.gmail.com"
     smtp_port: 587
-    sender_email: "your_email@gmail.com"
-    sender_password: "your_app_password"   # Use App Password for Gmail
-    recipient_email: "alert_recipient@gmail.com"
+    sender_email: "hemasiriguduru@gmail.com"
+    sender_password: "fcoklxvdzuzwpfss"   # Use App Password for Gmail
+    recipient_email: "hemasiriguduru@gmail.com"
 
   slack:
     webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
