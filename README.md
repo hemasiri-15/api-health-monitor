@@ -72,8 +72,8 @@ main.py  (entry point — orchestrates everything)
           └──────┬──────┘
                  │ load_config()
                  ▼
-          ┌─────────────┐     spawn thread      ┌──────────────────┐
-          │   main.py   │ ─────────────────────► │   monitor.py     │
+          ┌─────────────┐     spawn thread        ┌──────────────────┐
+          │   main.py   │ ──────────────────────► │   monitor.py     │
           │             │                         │  (daemon thread) │
           │  Flask runs │                         └────────┬─────────┘
           │  on main    │                                  │ every 30s
