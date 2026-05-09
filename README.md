@@ -98,18 +98,18 @@ main.py  (entry point — orchestrates everything)
 ```
 api-health-monitor/
 │
-├── main.py           ← Entry point: starts monitor thread + Flask dashboard
-├── monitor.py        ← Core engine: polls endpoints, dispatches results
-├── validator.py      ← HTTP status + JSON key + value validation
-├── alerts.py         ← Console / Email / Slack alert dispatcher
-├── database.py       ← SQLite read/write for historical logging
-├── dashboard.py      ← Flask routes + single-page HTML/JS/Chart.js dashboard
+├── main.py            ← Entry point: starts monitor thread + Flask dashboard
+├── monitor.py         ← Core engine: polls endpoints, dispatches results
+├── validator.py       ← HTTP status + JSON key + value validation
+├── alerts.py          ← Console / Email / Slack alert dispatcher
+├── database.py        ← SQLite read/write for historical logging
+├── dashboard.py       ← Flask routes + single-page HTML/JS/Chart.js dashboard
 │
-├── config.yaml       ← ALL configuration (endpoints, alerts, thresholds)
-├── requirements.txt  ← Python dependencies (flask, requests, pyyaml)
-├── Dockerfile        ← Container image definition
-├── docker-compose.yml← One-command deployment
-├── .gitignore        ← Excludes venv, db, pycache
+├── config.yaml        ← ALL configuration (endpoints, alerts, thresholds)
+├── requirements.txt   ← Python dependencies (flask, requests, pyyaml)
+├── Dockerfile         ← Container image definition
+├── docker-compose.yml ← One-command deployment
+├── .gitignore         ← Excludes venv, db, pycache
 │
 └── screenshots/
     └── dashboard.png
